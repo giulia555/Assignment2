@@ -3,41 +3,32 @@ name: Java CI with Maven
 on:
   push:
     branches:
-      - develop  
+      - develop
   pull_request:
     branches:
-      - develop  
+      - develop
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the code
+      - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      # Set up JDK 1.8
       - name: Set up JDK 1.8
         uses: actions/setup-java@v3
         with:
           java-version: '8.0.412+8'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
 
-      # Entra nella cartella 'roman-number' (dove si trova il pom.xml)
-      - name: Go to project directory
-        run: cd roman-number
+      - name: Build & Test with Coverage
+        run: mvn clean verify
 
-      # Build con Maven
-      - name: Build with Maven
-        run: mvn -B package --file roman-number/pom.xml
-
-      # Esegui i test con JaCoCo
-      - name: Test with JaCoCo
-        run: mvn test jacoco:report --file roman-number/pom.xml
-
-      # Report su Coveralls
       - name: Report to Coveralls
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        run: mvn coveralls:report --file roman-number/pom.xml
+        run: mvn coveralls:report
